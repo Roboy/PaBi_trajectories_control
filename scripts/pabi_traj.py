@@ -9,12 +9,16 @@ import time
 import rospy
 import json
 
+global angles
+global times
+global sub
 
-def record(req):
+def start_record(req):
 
 	angles = []
 	times = []
 	trajectory = {}
+	response = {}
 
 	def callback(data):
 		angles.append(data.relAngles)
@@ -23,21 +27,28 @@ def record(req):
 	start = time.time()
 	rospy.Subscriber("/roboy/middleware/JointStatus", JointStatus, callback)
 
-	try:
-		while True:
-			print('recording')
-		    # store angles and time
-	except KeyboardInterrupt:
-		# dump the data
-	    print('saving the data')
-	    for i in range(len(times)):
-	    	trajectory[start - times[i]] = angles
-	    with open('trajectory', 'w') as outfile:
-    		json.dump(trajectory, outfile)
+	while True:
+		print('recording')
+		response["message"] = "Recording PaBi trajectory"
 
-	response = {}
 	response["success"] = True
+	return json.dumps(response)
+
+def stop_record(req):
+	response = {}
+	sub.unregister()
+	# print('saving the data')
+	# for i in range(len(times)):
+	# 	trajectory[start - times[i]] = angles
+	# with open('trajectory', 'w') as outfile:
+	# 	json.dump(trajectory, outfile)
+
+	response["success"] = True	
 	response["message"] = "Recording PaBi trajectory was successful"
+
+	angles = []
+	times = []
+
 	return json.dumps(response)
 
 def replay(req):
@@ -48,9 +59,12 @@ def replay(req):
 
 
 if __name__ == '__main__':
+	angles = []
+	times = []
 	rospy.init_node('roboy_pabi_trajectories')
 
-	rospy.Service('/roboy/control/pabi/trajectory/record', Trigger, record)
+	rospy.Service('/roboy/control/pabi/trajectory/record/start', Trigger, start_record)
+	rospy.Service('/roboy/control/pabi/trajectory/record/stop', Trigger, stop_record)
 	rospy.Service('/roboy/control/pabi/trajectory/replay', Trigger, replay)
 	
 	print "/roboy/control/pabi/trajectory/ is ready"
