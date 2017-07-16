@@ -5,9 +5,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
-  rospy
-  std_msgs
-  message_generation
+  roscpp
+  roboy_communication_control
   
 )
 
@@ -25,28 +24,19 @@ find_package(catkin REQUIRED COMPONENTS
 #   EmotionMsg.msg
 # )
 
-## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
 
 catkin_package(
-  CATKIN_DEPENDS rospy std_msgs message_generation 
+  CATKIN_DEPENDS roscpp roboy_communication_control
 )
 
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+)
 
-#############
-## Install ##
-#############
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
- install(PROGRAMS
-   srs/move.py
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+add_executable(PaBi_trajectories_control src/pabi_traj.cpp)
+add_dependencies(PaBi_trajectories_control ${catkin_EXPORTED_TARGETS} roboy_communication_control_gencpp)
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
- install(DIRECTORY launch config
-   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-
+target_link_libraries(PaBi_trajectories_control
+ ${catkin_LIBRARIES}
+)
