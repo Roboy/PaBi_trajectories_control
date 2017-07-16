@@ -7,6 +7,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roboy_communication_control
+  roboy_communication_middleware
   
 )
 
@@ -26,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 
 catkin_package(
-  CATKIN_DEPENDS roscpp roboy_communication_control
+  CATKIN_DEPENDS roscpp roboy_communication_control roboy_communication_middleware
 )
 
 include_directories(
@@ -35,8 +36,11 @@ include_directories(
 )
 
 add_executable(PaBi_trajectories_control src/pabi_traj.cpp)
-add_dependencies(PaBi_trajectories_control ${catkin_EXPORTED_TARGETS} roboy_communication_control_gencpp)
-
+add_dependencies(PaBi_trajectories_control ${catkin_EXPORTED_TARGETS} roboy_communication_control_gencpp roboy_communication_middleware_gencpp)
 target_link_libraries(PaBi_trajectories_control
- ${catkin_LIBRARIES}
-)
+ ${catkin_LIBRARIES})
+
+add_executable(record_PaBi src/pabi_traj_client.cpp)
+add_dependencies(record_PaBi ${catkin_EXPORTED_TARGETS} roboy_communication_control_gencpp roboy_communication_middleware_gencpp)
+target_link_libraries(record_PaBi
+ ${catkin_LIBRARIES})
